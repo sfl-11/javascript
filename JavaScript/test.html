@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест по JavaScript</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .quiz-container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .quiz-header h1 {
+            color: #333;
+            font-weight: 700;
+        }
+        .quiz-header i {
+            font-size: 3rem;
+            color: #f7df1e;
+            margin-bottom: 15px;
+        }
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+        }
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f8f9fa;
+        }
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+            transform: translateX(5px);
+        }
+        .option.selected {
+            border-color: #667eea;
+            background: #e8ecff;
+        }
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .option.wrong {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        .option.disabled {
+            pointer-events: none;
+        }
+        .option-letter {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #667eea;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .option.correct .option-letter {
+            background: #28a745;
+        }
+        .option.wrong .option-letter {
+            background: #dc3545;
+        }
+        .btn-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: #fff;
+            padding: 12px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        .btn-custom:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            color: #fff;
+        }
+        .btn-custom:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result-icon {
+            font-size: 5rem;
+        }
+        .result-score {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .hidden {
+            display: none;
+        }
+        .feedback {
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container" id="app">
+        <!-- Стартовый экран -->
+        <div id="start-screen" class="text-center">
+            <div class="quiz-header">
+                <i class="bi bi-filetype-js"></i>
+                <h1>Тест по JavaScript</h1>
+                <p class="text-muted">Проверьте свои знания основ JavaScript</p>
+            </div>
+            <ul class="list-group list-group-flush mb-4 text-start">
+                <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>10 вопросов</li>
+                <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Без ограничения времени</li>
+                <li class="list-group-item"><i class="bi bi-check-circle-fill text-success me-2"></i>Мгновенная проверка ответов</li>
+            </ul>
+            <button class="btn btn-custom" onclick="startQuiz()">
+                <i class="bi bi-play-fill me-1"></i> Начать тест
+            </button>
+        </div>
+
+        <!-- Экран вопроса -->
+        <div id="quiz-screen" class="hidden">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted fw-bold">
+                    Вопрос <span id="current-question">1</span> из <span id="total-questions">10</span>
+                </span>
+                <span class="badge bg-primary fs-6" id="score-badge">Счет: 0</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                     id="progress-bar" style="width: 10%"></div>
+            </div>
+            <div class="question-text" id="question-text"></div>
+            <div id="options-container"></div>
+            <div class="text-center mt-4">
+                <button class="btn btn-custom" id="next-btn" onclick="nextQuestion()" disabled>
+                    Далее <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Экран результатов -->
+        <div id="result-screen" class="text-center hidden">
+            <div class="result-icon" id="result-icon"></div>
+            <h2 class="mt-3" id="result-title"></h2>
+            <p class="text-muted" id="result-message"></p>
+            <div class="my-4">
+                <div class="result-score">
+                    <span id="correct-count">0</span>/<span id="total-count">10</span>
+                </div>
+                <div class="text-muted">правильных ответов</div>
+            </div>
+            <div class="progress mb-4" style="height: 15px;">
+                <div class="progress-bar" id="result-progress" style="width: 0%"></div>
+            </div>
+            <button class="btn btn-custom" onclick="restartQuiz()">
+                <i class="bi bi-arrow-repeat me-1"></i> Пройти снова
+            </button>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Данные вопросов
+        const questions = [
+            {
+                question: "Что такое JavaScript?",
+                options: [
+                    "Язык разметки",
+                    "Язык программирования",
+                    "База данных",
+                    "Операционная система"
+                ],
+                correct: 1
+            },
+            {
+                question: "Какой оператор используется для строгого сравнения (без приведения типов)?",
+                options: ["==", "=", "===", "!="],
+                correct: 2
+            },
+            {
+                question: "Какой метод добавляет элемент в конец массива?",
+                options: ["push()", "pop()", "shift()", "unshift()"],
+                correct: 0
+            },
+            {
+                question: "Как объявить константу в JavaScript?",
+                options: ["var", "let", "const", "static"],
+                correct: 2
+            },
+            {
+                question: "Что вернёт выражение: typeof 'Hello'?",
+                options: ["string", "text", "char", "object"],
+                correct: 0
+            },
+            {
+                question: "Какой метод используется для поиска элемента в DOM по id?",
+                options: [
+                    "document.querySelector()",
+                    "document.getElementById()",
+                    "document.getElementsByClassName()",
+                    "document.findElement()"
+                ],
+                correct: 1
+            },
+            {
+                question: "Что делает метод Array.map()?",
+                options: [
+                    "Изменяет исходный массив",
+                    "Создаёт новый массив с результатами вызова функции",
+                    "Фильтрует массив",
+                    "Сортирует массив"
+                ],
+                correct: 1
+            },
+            {
+                question: "Какой результат: 2 + '2'?",
+                options: ["4", "'22'", "NaN", "Error"],
+                correct: 1
+            },
+            {
+                question: "Что такое замыкание (closure)?",
+                options: [
+                    "Способ закрыть браузер",
+                    "Функция, которая запоминает свою область видимости",
+                    "Закрытый класс",
+                    "Цикл while"
+                ],
+                correct: 1
+            },
+            {
+                question: "Каким способом можно проверить массив это или нет?",
+                options: [
+                    "typeof arr === 'array'",
+                    "Array.isArray(arr)",
+                    "arr instanceof Array && typeof arr === 'object'",
+                    "Оба варианта 2 и 3"
+                ],
+                correct: 3
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        let answered = false;
+
+        // DOM элементы
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+
+        function startQuiz() {
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            resultScreen.classList.add('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            selectedOption = null;
+            
+            const question = questions[currentQuestionIndex];
+            const progressPercent = ((currentQuestionIndex + 1) / questions.length) * 100;
+
+            document.getElementById('current-question').textContent = currentQuestionIndex + 1;
+            document.getElementById('total-questions').textContent = questions.length;
+            document.getElementById('score-badge').textContent = `Счет: ${score}`;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('question-text').textContent = question.question;
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            const letters = ['A', 'B', 'C', 'D'];
+
+            question.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option fade-in';
+                div.innerHTML = `
+                    <div class="option-letter">${letters[index]}</div>
+                    <div>${option}</div>
+                `;
+                div.onclick = () => selectOption(index, div);
+                container.appendChild(div);
+            });
+
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = true;
+            nextBtn.innerHTML = currentQuestionIndex === questions.length - 1 
+                ? 'Завершить <i class="bi bi-flag-fill ms-1"></i>' 
+                : 'Далее <i class="bi bi-arrow-right ms-1"></i>';
+        }
+
+        function selectOption(index, element) {
+            if (answered) return;
+            
+            answered = true;
+            selectedOption = index;
+
+            const question = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+
+            options.forEach((opt, i) => {
+                opt.classList.add('disabled');
+                if (i === question.correct) {
+                    opt.classList.add('correct');
+                } else if (i === index && index !== question.correct) {
+                    opt.classList.add('wrong');
+                }
+            });
+
+            if (index === question.correct) {
+                score++;
+                document.getElementById('score-badge').textContent = `Счет: ${score}`;
+            }
+
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (!answered) return;
+            
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            const total = questions.length;
+            const percent = (score / total) * 100;
+            
+            document.getElementById('correct-count').textContent = score;
+            document.getElementById('total-count').textContent = total;
+            
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+            const resultMessage = document.getElementById('result-message');
+            const resultProgress = document.getElementById('result-progress');
+
+            resultProgress.style.width = `${percent}%`;
+
+            if (percent >= 90) {
+                resultIcon.innerHTML = '<i class="bi bi-trophy-fill text-warning"></i>';
+                resultTitle.textContent = 'Отлично!';
+                resultTitle.className = 'mt-3 text-success';
+                resultMessage.textContent = 'Вы отлично знаете JavaScript!';
+                resultProgress.className = 'progress-bar bg-success';
+            } else if (percent >= 70) {
+                resultIcon.innerHTML = '<i class="bi bi-emoji-smile-fill text-success"></i>';
+                resultTitle.textContent = 'Хорошо!';
+                resultTitle.className = 'mt-3 text-success';
+                resultMessage.textContent = 'Хороший результат, но есть куда расти.';
+                resultProgress.className = 'progress-bar bg-info';
+            } else if (percent >= 50) {
+                resultIcon.innerHTML = '<i class="bi bi-emoji-neutral-fill text-warning"></i>';
+                resultTitle.textContent = 'Неплохо!';
+                resultTitle.className = 'mt-3 text-warning';
+                resultMessage.textContent = 'Стоит повторить основы JavaScript.';
+                resultProgress.className = 'progress-bar bg-warning';
+            } else {
+                resultIcon.innerHTML = '<i class="bi bi-emoji-frown-fill text-danger"></i>';
+                resultTitle.textContent = 'Нужно учиться!';
+                resultTitle.className = 'mt-3 text-danger';
+                resultMessage.textContent = 'Рекомендуем изучить основы JavaScript внимательнее.';
+                resultProgress.className = 'progress-bar bg-danger';
+            }
+        }
+
+        function restartQuiz() {
+            resultScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
