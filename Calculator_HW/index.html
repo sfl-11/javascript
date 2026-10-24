@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Нежный Калькулятор 🌸 by Sofia</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Пастельный фон с градиентом */
+        body {
+            background: linear-gradient(135deg, #fde4ec 0%, #e6e6fa 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: 'Comic Sans MS', 'Segoe UI', cursive, sans-serif; 
+        }
+
+        /* Карточка калькулятора */
+        .calc-card {
+            background: #ffffff;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(255, 182, 193, 0.3);
+            max-width: 450px;
+            width: 100%;
+            border: 2px solid #ffe4e1;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Милые декоративные элементы вокруг карточки */
+        .decor-top-left { position: absolute; top: -25px; left: -20px; font-size: 2.5rem; z-index: 1; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1)); }
+        .decor-top-right { position: absolute; top: -25px; right: -20px; font-size: 2.5rem; z-index: 1; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1)); }
+        .decor-bottom-left { position: absolute; bottom: -25px; left: -20px; font-size: 2.5rem; z-index: 1; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1)); }
+        .decor-bottom-right { position: absolute; bottom: -25px; right: -20px; font-size: 2.5rem; z-index: 1; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1)); }
+        
+        /* Анимация парения для эмодзи */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating { animation: float 3s ease-in-out infinite; }
+
+        .calc-title {
+            color: #ff8da1;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 2px #ffd1dc;
+            font-size: 1.8rem;
+        }
+
+        /* Красивые инпуты */
+        .form-control, .form-select {
+            border-radius: 15px;
+            border: 2px solid #ffd1dc;
+            padding: 12px 15px;
+            background-color: #fffafb;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #ff8da1;
+            box-shadow: 0 0 0 0.25rem rgba(255, 141, 161, 0.25);
+        }
+
+        .form-label {
+            color: #d16b7e;
+            font-weight: 600;
+        }
+
+        /* Милая кнопка */
+        .btn-cute {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            border: none;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            padding: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+        }
+
+        .btn-cute:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 154, 158, 0.4);
+            color: #fff;
+        }
+
+        /* Блок результата */
+        .result-box {
+            background: #fff0f5;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 25px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #d16b7e;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #ffb6c1;
+            transition: all 0.3s ease;
+        }
+
+        /* Стиль для ошибки */
+        .result-box.error {
+            background: #ffe4e1;
+            color: #ff6b81;
+            border-color: #ff6b81;
+            font-size: 1.1rem;
+        }
+
+        /* Красивая подпись внизу */
+        .credits {
+            margin-top: 30px;
+            text-align: center;
+            color: #b06c7a;
+            font-size: 0.95rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 10px 25px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(255, 182, 193, 0.2);
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calc-card">
+        <!-- Парящие эмодзи вокруг карточки -->
+        <div class="decor-top-left floating" style="animation-delay: 0s;">👻</div>
+        <div class="decor-top-right floating" style="animation-delay: 1s;">🦢</div>
+        <div class="decor-bottom-left floating" style="animation-delay: 2s;">🦭</div>
+        <div class="decor-bottom-right floating" style="animation-delay: 0.5s;">🦋</div> <!-- Заменил на бабочку, чтобы было красивее, но если нужен леопард, пишите 🐆 -->
+
+        <h2 class="calc-title">🌸 Калькулятор 💖</h2>
+
+        <div class="mb-3">
+            <label for="num1" class="form-label">Первое число 🪷</label>
+            <input type="number" step="any" class="form-control" id="num1" placeholder="Введите число...">
+        </div>
+
+        <div class="mb-3">
+            <label for="num2" class="form-label">Второе число 🌷</label>
+            <input type="number" step="any" class="form-control" id="num2" placeholder="Введите число...">
+        </div>
+
+        <div class="mb-4">
+            <label for="operation" class="form-label">Операция 🌺</label>
+            <select class="form-select" id="operation">
+                <option value="+">➕ Сложение</option>
+                <option value="-">➖ Вычитание</option>
+                <option value="*">✖️ Умножение</option>
+                <option value="/">➗ Деление</option>
+            </select>
+        </div>
+
+        <button class="btn btn-cute w-100" onclick="calculate()">
+            Вычислить ✨
+        </button>
+
+        <div class="result-box" id="result">Результат появится здесь 🍁</div>
+    </div>
+
+    <!-- Подпись автора -->
+    <div class="credits">
+        Сделано с 💕 <strong>by Sofia Lebedeva & DeepSeek</strong> 🐆
+    </div>
+
+    <!-- Подключаем скрипт -->
+    <script src="script.js"></script>
+</body>
+</html>
